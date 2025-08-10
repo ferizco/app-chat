@@ -22,3 +22,10 @@
 ## API List 
 - POST /api/auth/login
 - GET /api/users
+
+## Workflow 
+1. makesure main di lokal selalu update -> git checkout main && git pull origin main
+2. jika mau update, bikin branch baru -> git checkout -b namabranch (namatask-namadeveloper)
+3. setelah selesai coding, add, commit, and push ke branch baru 
+4. req pull request di GitHub, merged branch baru ke main 
+5. pastikan tidak ada conflict dan hapus branch tersebut
