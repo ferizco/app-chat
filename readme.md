@@ -16,9 +16,5 @@
 - npm run dev
 
 ## user login 
-- user: alice, bob, charlie (pilih salah satu)
-- pass: 123456
-
-## API List 
-### POST /api/auth/login
-### GET /api/users
+user: alice, bob, charlie (pilih salah satu)
+pass: 123456
