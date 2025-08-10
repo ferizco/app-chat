@@ -11,7 +11,7 @@ type Config struct {
 func Load() Config {
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8080"
+		port = "2222"
 	}
 	dsn := os.Getenv("DB_DSN")
 	if dsn == "" {
