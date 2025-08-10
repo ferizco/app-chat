@@ -6,18 +6,22 @@ import (
 
 	"github.com/ferizco/chat-app/server/internal/handlers"
 	"github.com/ferizco/chat-app/server/internal/middleware"
+	"github.com/ferizco/chat-app/server/internal/security"
 )
 
 func Register(app *fiber.App, db *gorm.DB, jwtSecret string) {
-	// public
-	app.Get("/api/hello", func(c *fiber.Ctx) error {
-		return c.JSON(fiber.Map{"message": "Hello from Fiber"})
-	})
-	auth := handlers.AuthHandler{DB: db, JWTSecret: jwtSecret}
+	// Inisialisasi blacklist (bisa dipindah ke main untuk lifecycle control)
+	bl := security.NewJTIBlacklist()
+
+	auth := handlers.AuthHandler{DB: db, JWTSecret: jwtSecret, Blacklist: bl}
 	app.Post("/api/auth/login", auth.Login)
 
-	// protected
-	app.Use("/api", middleware.AuthRequired(middleware.AuthConfig{Secret: jwtSecret}))
+	app.Use("/api", middleware.AuthRequired(middleware.AuthConfig{
+		Secret: jwtSecret, Blacklist: bl,
+	}))
+	app.Post("/api/auth/logout", auth.Logout)
+
+	// Users
 	uh := handlers.UserHandler{DB: db}
 	app.Get("/api/users", uh.List)
 }

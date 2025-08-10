@@ -1,47 +1,74 @@
 package middleware
 
 import (
+	"log"
 	"net/http"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
+
+	"github.com/ferizco/chat-app/server/internal/security"
 )
 
-type AuthConfig struct{ Secret string }
+type AuthConfig struct {
+	Secret    string
+	Blacklist *security.JTIBlacklist
+}
+
+func extractTokens(c *fiber.Ctx) []string {
+	var toks []string
+	if v := c.Cookies("auth_token"); v != "" {
+		toks = append(toks, v)
+	}
+	if h := string(c.Request().Header.Peek("Authorization")); strings.HasPrefix(strings.ToLower(h), "bearer ") {
+		toks = append(toks, strings.TrimSpace(h[7:]))
+	}
+	return toks
+}
 
 func AuthRequired(cfg AuthConfig) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		// Ambil token dari Authorization: Bearer ... atau cookie "auth_token"
-		var tokenStr string
-		if h := string(c.Request().Header.Peek("Authorization")); strings.HasPrefix(strings.ToLower(h), "bearer ") {
-			tokenStr = strings.TrimSpace(h[7:])
-		}
-		if tokenStr == "" {
-			if v := c.Cookies("auth_token"); v != "" {
-				tokenStr = v
-			}
-		}
-		if tokenStr == "" {
+		cand := extractTokens(c)
+		log.Printf("[auth] cookie=%q authz=%q", c.Cookies("auth_token"), c.Get("Authorization"))
+		if len(cand) == 0 {
 			return c.Status(http.StatusUnauthorized).JSON(fiber.Map{"error": "missing token"})
 		}
 
-		tok, err := jwt.Parse(tokenStr, func(t *jwt.Token) (interface{}, error) {
-			return []byte(cfg.Secret), nil
-		})
-		if err != nil || !tok.Valid {
-			return c.Status(http.StatusUnauthorized).JSON(fiber.Map{"error": "invalid token"})
+		var lastErr error
+		for i, tokenStr := range cand {
+			tok, err := jwt.Parse(tokenStr, func(t *jwt.Token) (interface{}, error) {
+				return []byte(cfg.Secret), nil
+			})
+			if err != nil || !tok.Valid {
+				lastErr = fiber.NewError(http.StatusUnauthorized, "invalid token")
+				continue
+			}
+			claims, ok := tok.Claims.(jwt.MapClaims)
+			if !ok {
+				lastErr = fiber.NewError(http.StatusUnauthorized, "invalid claims")
+				continue
+			}
+			sub, _ := claims["sub"].(string)
+			jti, _ := claims["jti"].(string)
+			if sub == "" || jti == "" {
+				lastErr = fiber.NewError(http.StatusUnauthorized, "invalid subject or jti")
+				continue
+			}
+			// cek blacklist JTI
+			if cfg.Blacklist != nil && cfg.Blacklist.Has(jti) {
+				lastErr = fiber.NewError(http.StatusUnauthorized, "token revoked")
+				continue
+			}
+			c.Locals("userID", sub)
+			c.Locals("token", tokenStr)
+			c.Locals("jti", jti)
+			log.Printf("[auth] OK userID=%s jti=%s via candidate[%d]", sub, jti, i)
+			return c.Next()
 		}
-		claims, ok := tok.Claims.(jwt.MapClaims)
-		if !ok {
-			return c.Status(http.StatusUnauthorized).JSON(fiber.Map{"error": "invalid claims"})
+		if lastErr != nil {
+			return lastErr
 		}
-		sub, _ := claims["sub"].(string)
-		if sub == "" {
-			return c.Status(http.StatusUnauthorized).JSON(fiber.Map{"error": "invalid subject"})
-		}
-
-		c.Locals("userID", sub)
-		return c.Next()
+		return c.Status(http.StatusUnauthorized).JSON(fiber.Map{"error": "unauthorized"})
 	}
 }
