@@ -50,7 +50,7 @@ function renderUserList(users: User[]) {
   const state = document.getElementById('state')!;
 
   count.textContent = String(users.length);
-  state.textContent = users.length ? '' : 'Belum ada user lain.';
+  state.textContent = users.length ? '' : 'Belum ada user yang lain.';
   list.toggleAttribute('hidden', users.length === 0);
 
   list.innerHTML = users.map(u => `
