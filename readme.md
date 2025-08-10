@@ -6,19 +6,15 @@
 - DB     : sqlite3
 
 ## install backend
-cd server
-go mod tidy
-go run ./cmd/api
+- cd server
+- go mod tidy
+- go run ./cmd/api
 
 ## install frontend
-cd web
-npm install
-npm run dev
+- cd web
+- npm install
+- npm run dev
 
 ## user login 
 user: alice, bob, charlie (pilih salah satu)
 pass: 123456
-
-## API List 
-### POST /api/auth/login
-### GET /api/users
