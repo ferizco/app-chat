@@ -9,3 +9,12 @@ export async function login(username: string, password: string): Promise<LoginRe
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
+
+export async function logout(): Promise<any> {
+  const res = await fetch('/api/auth/logout', {
+    method: 'POST',
+    credentials: 'include'
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
