@@ -2,6 +2,7 @@
 import type { User } from '../types';
 import { getUsers } from '../api/users';
 import { renderLoginView } from './loginView';
+import { logout } from '../api/auth';
 
 export function renderUsersView(container: HTMLElement) {
   container.innerHTML = `
@@ -11,6 +12,7 @@ export function renderUsersView(container: HTMLElement) {
           <h2>Users</h2>
           <span class="badge" id="count">0</span>
           <div class="actions">
+            <button class="btn" id="logout">Logout</button>
             <button class="btn" id="refresh">Refresh</button>
           </div>
         </div>
@@ -20,6 +22,7 @@ export function renderUsersView(container: HTMLElement) {
     </div>
   `;
   document.getElementById('refresh')!.addEventListener('click', loadUsers);
+  document.getElementById('logout')!.addEventListener('click', loadLogout);
 }
 
 export async function loadUsers() {
@@ -41,6 +44,17 @@ export async function loadUsers() {
     console.error(err);
     state.textContent = 'Gagal memuat users';
     state.classList.add('err');
+  }
+}
+
+export async function loadLogout() {
+  try {
+    await logout();
+    const app = document.getElementById('app')!;
+    renderLoginView(app);
+  } catch (err) {
+    console.error('Logout error:', err);
+    alert('Gagal logout. Silakan coba lagi.');
   }
 }
 
