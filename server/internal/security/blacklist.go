@@ -28,7 +28,6 @@ func (b *JTIBlacklist) Add(jti string, until time.Time) {
 	b.mu.Lock()
 	b.data[jti] = until
 	b.mu.Unlock()
-	log.Printf("[blacklist:add] jti=%s until=%s", jti, until.UTC().Format(time.RFC3339))
 }
 
 func (b *JTIBlacklist) Has(jti string) bool {
@@ -40,11 +39,6 @@ func (b *JTIBlacklist) Has(jti string) bool {
 	exp, ok := b.data[jti]
 	b.mu.RUnlock()
 	hit := ok && now.Before(exp)
-	if hit {
-		log.Printf("[blacklist:hit]  jti=%s exp=%s now=%s", jti, exp.UTC().Format(time.RFC3339), now.UTC().Format(time.RFC3339))
-	} else {
-		log.Printf("[blacklist:miss] jti=%s", jti)
-	}
 	return hit
 }
 

@@ -1,13 +1,13 @@
 package middleware
 
 import (
-	"log"
 	"net/http"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
 
+	"github.com/ferizco/chat-app/server/internal/httpx"
 	"github.com/ferizco/chat-app/server/internal/security"
 )
 
@@ -30,13 +30,13 @@ func extractTokens(c *fiber.Ctx) []string {
 func AuthRequired(cfg AuthConfig) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		cand := extractTokens(c)
-		log.Printf("[auth] cookie=%q authz=%q", c.Cookies("auth_token"), c.Get("Authorization"))
 		if len(cand) == 0 {
-			return c.Status(http.StatusUnauthorized).JSON(fiber.Map{"error": "missing token"})
+			// return c.Status(http.StatusUnauthorized).JSON(fiber.Map{"error": "missing token"})
+			return httpx.Error(c, http.StatusUnauthorized, "missing token")
 		}
 
 		var lastErr error
-		for i, tokenStr := range cand {
+		for _, tokenStr := range cand {
 			tok, err := jwt.Parse(tokenStr, func(t *jwt.Token) (interface{}, error) {
 				return []byte(cfg.Secret), nil
 			})
@@ -63,12 +63,12 @@ func AuthRequired(cfg AuthConfig) fiber.Handler {
 			c.Locals("userID", sub)
 			c.Locals("token", tokenStr)
 			c.Locals("jti", jti)
-			log.Printf("[auth] OK userID=%s jti=%s via candidate[%d]", sub, jti, i)
 			return c.Next()
 		}
 		if lastErr != nil {
 			return lastErr
 		}
-		return c.Status(http.StatusUnauthorized).JSON(fiber.Map{"error": "unauthorized"})
+		// return c.Status(http.StatusUnauthorized).JSON(fiber.Map{"error": "unauthorized"})
+		return httpx.Error(c, http.StatusUnauthorized, "unauthorized")
 	}
 }

@@ -9,6 +9,8 @@ import (
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 
+	"github.com/ferizco/chat-app/server/internal/httpx"
+	"github.com/ferizco/chat-app/server/internal/logger"
 	"github.com/ferizco/chat-app/server/internal/models"
 	"github.com/ferizco/chat-app/server/internal/security"
 	"golang.org/x/crypto/bcrypt"
@@ -28,16 +30,19 @@ type loginReq struct {
 func (h AuthHandler) Login(c *fiber.Ctx) error {
 	var req loginReq
 	if err := c.BodyParser(&req); err != nil {
-		return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": "bad request"})
+		// return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": "bad request"})
+		return httpx.Error(c, http.StatusBadRequest, "bad request")
 	}
 
 	var u models.User
 	if err := h.DB.Where("username = ?", req.Username).First(&u).Error; err != nil {
-		return c.Status(http.StatusUnauthorized).JSON(fiber.Map{"error": "invalid credentials"})
+		// return c.Status(http.StatusUnauthorized).JSON(fiber.Map{"error": "invalid credentials"})
+		return httpx.Error(c, http.StatusUnauthorized, "invalid credentials")
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(u.PassHash), []byte(req.Password)); err != nil {
-		return c.Status(http.StatusUnauthorized).JSON(fiber.Map{"error": "invalid credentials"})
+		// return c.Status(http.StatusUnauthorized).JSON(fiber.Map{"error": "invalid credentials"})
+		return httpx.Error(c, http.StatusUnauthorized, "invalid credentials")
 	}
 
 	claims := jwt.MapClaims{
@@ -50,7 +55,8 @@ func (h AuthHandler) Login(c *fiber.Ctx) error {
 	tok := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	signed, err := tok.SignedString([]byte(h.JWTSecret))
 	if err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": "sign token failed"})
+		// return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": "sign token failed"})
+		return httpx.Error(c, http.StatusInternalServerError, "sign token failed")
 	}
 
 	// Set cookie httpOnly
@@ -59,7 +65,9 @@ func (h AuthHandler) Login(c *fiber.Ctx) error {
 		HTTPOnly: true, SameSite: "Lax", Path: "/", MaxAge: 24 * 3600,
 	})
 
-	return c.JSON(fiber.Map{
+	logger.AuthLogin(c, u.ID, u.Username)
+
+	return httpx.Success(c, "login success", fiber.Map{
 		"token": signed,
 		"user":  fiber.Map{"id": u.ID, "username": u.Username},
 	})
@@ -71,14 +79,16 @@ func (h AuthHandler) Logout(c *fiber.Ctx) error {
 	if tokenStr == "" {
 		tokenStr = c.Cookies("auth_token")
 		if tokenStr == "" {
-			return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": "no token"})
+			// return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": "no token"})
+			return httpx.Error(c, http.StatusBadRequest, "no token")
 		}
 	}
 	tok, err := jwt.Parse(tokenStr, func(t *jwt.Token) (interface{}, error) {
 		return []byte(h.JWTSecret), nil
 	})
 	if err != nil || !tok.Valid {
-		return c.Status(http.StatusUnauthorized).JSON(fiber.Map{"error": "invalid token"})
+		// return c.Status(http.StatusUnauthorized).JSON(fiber.Map{"error": "invalid token"})
+		return httpx.Error(c, http.StatusUnauthorized, "invalid token")
 	}
 	claims, _ := tok.Claims.(jwt.MapClaims)
 
@@ -105,5 +115,5 @@ func (h AuthHandler) Logout(c *fiber.Ctx) error {
 		HTTPOnly: true, SameSite: "Lax", Path: "/", MaxAge: -1,
 	})
 
-	return c.JSON(fiber.Map{"message": "logged out"})
+	return httpx.Success(c, "logged out", nil)
 }
