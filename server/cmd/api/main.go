@@ -7,9 +7,9 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 
-	"github.com/ferizco/chat-app/server/internal/config"
-	"github.com/ferizco/chat-app/server/internal/db"
-	"github.com/ferizco/chat-app/server/internal/routes"
+	"github.com/ferizco/chat-app/server/app/config"
+	"github.com/ferizco/chat-app/server/app/db"
+	"github.com/ferizco/chat-app/server/app/routes"
 )
 
 func main() {

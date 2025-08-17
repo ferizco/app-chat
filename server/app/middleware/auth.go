@@ -7,8 +7,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
 
-	"github.com/ferizco/chat-app/server/internal/httpx"
-	"github.com/ferizco/chat-app/server/internal/security"
+	"github.com/ferizco/chat-app/server/app/httpx"
+	"github.com/ferizco/chat-app/server/app/security"
 )
 
 type AuthConfig struct {

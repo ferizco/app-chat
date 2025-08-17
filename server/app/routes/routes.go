@@ -4,9 +4,9 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
 
-	"github.com/ferizco/chat-app/server/internal/handlers"
-	"github.com/ferizco/chat-app/server/internal/middleware"
-	"github.com/ferizco/chat-app/server/internal/security"
+	"github.com/ferizco/chat-app/server/app/middleware"
+	"github.com/ferizco/chat-app/server/app/security"
+	"github.com/ferizco/chat-app/server/users/handlers"
 )
 
 func Register(app *fiber.App, db *gorm.DB, jwtSecret string) {
