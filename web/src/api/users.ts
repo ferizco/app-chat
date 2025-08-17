@@ -1,12 +1,9 @@
-import type { User } from '../types';
+import type { User } from '../types/user';
+import { http } from './http';
+
+type Users = { status: string; message: string; data: User[] };
 
 export async function getUsers(): Promise<User[]> {
-  const res = await fetch('/api/users');
-
-  if (res.status === 401) throw new Error('unauthorized');
-  if (!res.ok) throw new Error(await res.text());
-  
-  const json = await res.json();
-
-  return json.data;
+  const res = await http<Users>('/api/users');
+  return res.data;
 }

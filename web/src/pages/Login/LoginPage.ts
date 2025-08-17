@@ -1,8 +1,10 @@
-import { login } from '../api/auth';
-import { renderUsersView, loadUsers } from './usersView'; // ← langsung import
+import { login } from '../../api/auth';
 
-export function renderLoginView(container: HTMLElement) {
-  container.innerHTML = `
+type Props = { onLoggedIn: () => void };
+
+export function LoginPage({ onLoggedIn }: Props) {
+  const root = document.createElement('div');
+  root.innerHTML = `
     <div class="container">
       <div class="panel">
         <div class="header"><h2>Login</h2></div>
@@ -24,30 +26,32 @@ export function renderLoginView(container: HTMLElement) {
     </div>
   `;
 
-  const form = container.querySelector('#loginForm') as HTMLFormElement;
-  const errEl = container.querySelector('#loginError') as HTMLDivElement;
+  const form = root.querySelector<HTMLFormElement>('#loginForm')!;
+  const errEl = root.querySelector<HTMLDivElement>('#loginError')!;
 
   form.onsubmit = async (e) => {
     e.preventDefault();
     errEl.textContent = '';
     errEl.classList.add('hidden');
 
-    const username = (container.querySelector('#username') as HTMLInputElement).value.trim();
-    const password = (container.querySelector('#password') as HTMLInputElement).value;
+    const username = (root.querySelector('#username') as HTMLInputElement).value.trim();
+    const password = (root.querySelector('#password') as HTMLInputElement).value;
 
     if (!username || !password) {
       errEl.textContent = 'Username dan password wajib diisi.';
       errEl.classList.remove('hidden');
       return;
     }
+
     try {
-      await login(username, password);
-      renderUsersView(container);
-      await loadUsers(); // ← panggil langsung
+      await login(username, password);     // set cookie di server
+      onLoggedIn();                        // switch ke Users
     } catch (err) {
+      console.error(err);
       errEl.textContent = 'Login gagal. Periksa username/password.';
       errEl.classList.remove('hidden');
-      console.error(err);
     }
   };
+
+  return root;
 }
