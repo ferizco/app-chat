@@ -10,7 +10,10 @@ export function init(app: HTMLElement) {
       view === 'users'
         ? UsersPage({ onLogout: () => render('login') })
         : view === 'signup'
-        ? SignupPage()
+        ? SignupPage({
+            onSignup: () => render('login'),   
+            onGoLogin: () => render('login'), 
+          })
         : LoginPage({
             onLoggedIn: () => render('users'),    // sementara: nanti disambung API
             onGoSignup: () => render('signup'),
@@ -18,7 +21,6 @@ export function init(app: HTMLElement) {
 
     app.replaceChildren(el);
   };
-
-  // start di login (atau ganti ke users jika kamu mau)
+  
   render('login');
 }

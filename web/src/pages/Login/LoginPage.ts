@@ -53,8 +53,8 @@ export function LoginPage({ onLoggedIn, onGoSignup }: Props) {
     }
 
     try {
-      await login(username, password);     // set cookie di server
-      onLoggedIn();                        // switch ke Users
+      await login(username, password);   
+      onLoggedIn();                 
     } catch (err) {
       console.error(err);
       errEl.textContent = 'Login gagal. Periksa username/password.';

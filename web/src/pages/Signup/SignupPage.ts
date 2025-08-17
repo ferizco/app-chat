@@ -1,9 +1,14 @@
 // src/pages/Signup/SignupPage.ts
 import { getAlias } from '../../api/alias';
+import { signup } from '../../api/auth';
+import type { Alias } from '../../types/alias';
 
-type AliasItem = { id_alias: string; alias_name: string };
+type Props = { 
+  onSignup: () => void;
+  onGoLogin: () => void; 
+};
 
-export function SignupPage() {
+export function SignupPage({ onSignup, onGoLogin }: Props) {
   const root = document.createElement('div');
   root.innerHTML = `
     <div class="container">
@@ -57,6 +62,7 @@ export function SignupPage() {
       </div>
     </div>
   `;
+  root.querySelector<HTMLButtonElement>('#goLogin')!.onclick = onGoLogin; 
 
   const form = root.querySelector<HTMLFormElement>('#signupForm')!;
   const errEl = root.querySelector<HTMLDivElement>('#signupError')!;
@@ -65,15 +71,12 @@ export function SignupPage() {
   const aliasShuffle = root.querySelector<HTMLButtonElement>('#aliasShuffle')!;
   const aliasIdInput = root.querySelector<HTMLInputElement>('#aliasId')!;
 
-  let allAliases: AliasItem[] = [];
-  let current: [AliasItem | null, AliasItem | null] = [null, null];
-
   // handlers
   aliasA.onclick = () => selectAliasBtn(aliasA);
   aliasB.onclick = () => selectAliasBtn(aliasB);
   aliasShuffle.onclick = () => reshuffle();
 
-  form.onsubmit = (e) => {
+  form.onsubmit = async (e) => {
     e.preventDefault();
 
     const name = (root.querySelector<HTMLInputElement>('#name')?.value || '').trim();
@@ -93,15 +96,21 @@ export function SignupPage() {
       return;
     }
 
-    // log semua value
-    console.log({
-      name,
-      username,
-      email,
-      password,
-      id_alias
-    });
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      showError('Format email tidak valid.');
+      return;
+    }
+
+    try {
+      await signup(name, username, email, password, id_alias);
+      onSignup();
+    } catch (err) {
+      console.error(err);
+    }
   };
+
+  let allAliases: Alias[] = [];
+  let current: [Alias | null, Alias | null] = [null, null];
 
   loadAlias();
   return root;
@@ -131,7 +140,7 @@ export function SignupPage() {
     aliasB.classList.remove('active');
   }
 
-  function setAliasBtn(btn: HTMLButtonElement, item: AliasItem) {
+  function setAliasBtn(btn: HTMLButtonElement, item: Alias) {
     btn.textContent = item.alias_name;
     btn.dataset.id = item.id_alias;
   }
