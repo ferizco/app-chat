@@ -10,25 +10,33 @@ import (
 )
 
 func Register(app *fiber.App, db *gorm.DB, jwtSecret string) {
-	// Inisialisasi blacklist (bisa dipindah ke main untuk lifecycle control)
+	// Inisialisasi blacklist JWT (bisa dipindah ke main jika perlu kontrol lifecycle)
 	bl := security.NewJTIBlacklist()
 
+	// Handlers
 	auth := handlers.AuthHandler{DB: db, JWTSecret: jwtSecret, Blacklist: bl}
-	app.Post("/api/auth/login", auth.Login)
-
 	cu := handlers.CreateUserHandler{DB: db}
-	app.Post("/api/create/user", cu.Create)
-
 	ah := handlers.AliasHandler{DB: db}
-	app.Get("/api/alias", ah.List_Alias)
-
-	app.Use("/api", middleware.AuthRequired(middleware.AuthConfig{
-		Secret: jwtSecret, Blacklist: bl,
-	}))
-	app.Post("/api/auth/logout", auth.Logout)
-
-	// Users
 	uh := handlers.UserHandler{DB: db}
-	app.Get("/api/users", uh.List)
 
+	// Base groups
+	api := app.Group("/api")
+	v1 := api.Group("/v1")
+	user := v1.Group("/user")
+
+	// --- Public user endpoints (tanpa auth) ---
+	user.Post("/login", auth.Login)
+	user.Post("/create", cu.Create)
+	user.Get("/listalias", ah.List_Alias)
+
+	// --- Protected user endpoints (butuh auth middleware) ---
+	protected := user.Group("/",
+		middleware.AuthRequired(middleware.AuthConfig{
+			Secret:    jwtSecret,
+			Blacklist: bl,
+		}),
+	)
+	protected.Post("/logout", auth.Logout)
+	protected.Get("/listusers", uh.List)
+	protected.Get("/profile", uh.Profile)
 }
