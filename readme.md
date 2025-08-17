@@ -19,9 +19,13 @@
 - user: alice, bob, charlie (pilih salah satu)
 - pass: 123456
 
-## API List 
+## API User List 
 - POST /api/auth/login
+- POST /api/auth/logout
+- GET /api/alias
 - GET /api/users
+- POST /api/create/user
+
 
 ## Workflow 
 1. makesure main di lokal selalu update -> git checkout main && git pull origin main
@@ -29,3 +33,4 @@
 3. setelah selesai coding, add, commit, and push ke branch baru 
 4. req pull request di GitHub, merged branch baru ke main 
 5. pastikan tidak ada conflict dan hapus branch tersebut
+6. git switch main untuk pindah ke branch main dan lakukan pull request
