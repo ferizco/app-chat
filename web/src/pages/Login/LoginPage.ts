@@ -1,8 +1,11 @@
 import { login } from '../../api/auth';
 
-type Props = { onLoggedIn: () => void };
+type Props = { 
+  onLoggedIn: () => void;
+  onGoSignup: () => void;
+};
 
-export function LoginPage({ onLoggedIn }: Props) {
+export function LoginPage({ onLoggedIn, onGoSignup }: Props) {
   const root = document.createElement('div');
   root.innerHTML = `
     <div class="container">
@@ -22,9 +25,15 @@ export function LoginPage({ onLoggedIn }: Props) {
             <div id="loginError" class="err hidden"></div>
           </div>
         </form>
+        <div class="row" style="margin-top:8px">
+          <span class="muted">Belum punya akun?</span>
+          <button id="goSignup" class="linklike">Daftar</button>
+        </div>
       </div>
     </div>
   `;
+
+  root.querySelector<HTMLButtonElement>('#goSignup')!.onclick = onGoSignup;
 
   const form = root.querySelector<HTMLFormElement>('#loginForm')!;
   const errEl = root.querySelector<HTMLDivElement>('#loginError')!;
