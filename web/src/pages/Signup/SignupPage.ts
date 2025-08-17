@@ -1,17 +1,14 @@
 // src/pages/Signup/SignupPage.ts
 import { getAlias } from '../../api/alias';
 import { signup } from '../../api/auth';
-
-type AliasItem = { 
-  id_alias: string; 
-  alias_name: string 
-};
+import type { Alias } from '../../types/alias';
 
 type Props = { 
   onSignup: () => void;
+  onGoLogin: () => void; 
 };
 
-export function SignupPage({ onSignup }: Props) {
+export function SignupPage({ onSignup, onGoLogin }: Props) {
   const root = document.createElement('div');
   root.innerHTML = `
     <div class="container">
@@ -65,6 +62,7 @@ export function SignupPage({ onSignup }: Props) {
       </div>
     </div>
   `;
+  root.querySelector<HTMLButtonElement>('#goLogin')!.onclick = onGoLogin; 
 
   const form = root.querySelector<HTMLFormElement>('#signupForm')!;
   const errEl = root.querySelector<HTMLDivElement>('#signupError')!;
@@ -72,9 +70,6 @@ export function SignupPage({ onSignup }: Props) {
   const aliasB = root.querySelector<HTMLButtonElement>('#aliasB')!;
   const aliasShuffle = root.querySelector<HTMLButtonElement>('#aliasShuffle')!;
   const aliasIdInput = root.querySelector<HTMLInputElement>('#aliasId')!;
-
-  let allAliases: AliasItem[] = [];
-  let current: [AliasItem | null, AliasItem | null] = [null, null];
 
   // handlers
   aliasA.onclick = () => selectAliasBtn(aliasA);
@@ -106,21 +101,16 @@ export function SignupPage({ onSignup }: Props) {
       return;
     }
 
-    // log semua value
-    console.log({
-      name,
-      username,
-      email,
-      password,
-      id_alias
-    });
-
     try {
       await signup(name, username, email, password, id_alias);
+      onSignup();
     } catch (err) {
       console.error(err);
     }
   };
+
+  let allAliases: Alias[] = [];
+  let current: [Alias | null, Alias | null] = [null, null];
 
   loadAlias();
   return root;
@@ -150,7 +140,7 @@ export function SignupPage({ onSignup }: Props) {
     aliasB.classList.remove('active');
   }
 
-  function setAliasBtn(btn: HTMLButtonElement, item: AliasItem) {
+  function setAliasBtn(btn: HTMLButtonElement, item: Alias) {
     btn.textContent = item.alias_name;
     btn.dataset.id = item.id_alias;
   }
