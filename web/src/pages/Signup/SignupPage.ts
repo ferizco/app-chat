@@ -1,6 +1,6 @@
 // src/pages/Signup/SignupPage.ts
-import { getAlias } from '../../api/alias';
-import { signup } from '../../api/auth';
+import { getAlias } from '../../api/users';
+import { signup } from '../../api/users';
 import type { Alias } from '../../types/alias';
 
 type Props = { 
