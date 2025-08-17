@@ -18,6 +18,7 @@ func Register(app *fiber.App, db *gorm.DB, jwtSecret string) {
 	cu := handlers.CreateUserHandler{DB: db}
 	ah := handlers.AliasHandler{DB: db}
 	uh := handlers.UserHandler{DB: db}
+	cp := handlers.ChangePassHandler{DB: db}
 
 	// Base groups
 	api := app.Group("/api")
@@ -39,4 +40,5 @@ func Register(app *fiber.App, db *gorm.DB, jwtSecret string) {
 	protected.Post("/logout", auth.Logout)
 	protected.Get("/listusers", uh.List)
 	protected.Get("/profile", uh.Profile)
+	protected.Post("/changepassword", cp.ChangePassword)
 }
