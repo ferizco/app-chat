@@ -1,4 +1,4 @@
-import { login } from '../../api/auth';
+import { login } from '../../api/users';
 
 type Props = { 
   onLoggedIn: () => void;

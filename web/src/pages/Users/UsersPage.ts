@@ -1,5 +1,5 @@
 import { getUsers } from '../../api/users';
-import { logout } from '../../api/auth';
+import { logout } from '../../api/users';
 import type { User } from '../../types/user';
 
 type Props = { onLogout: () => void };
