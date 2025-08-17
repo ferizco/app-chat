@@ -1,0 +1,38 @@
+.badge {
+  background: #203046;
+  color: #c9e1ff;
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 12px;
+}
+
+.btn {
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid #2a3342;
+  background: #12151c;
+  color: var(--text);
+  cursor: pointer;
+}
+.btn:hover { border-color: #3a4558; }
+
+.form {
+  display: grid;
+  gap: 10px;
+  margin-top: 8px;
+}
+.label { font-size: 13px; color: var(--muted); }
+
+.input {
+  padding: 10px 12px;
+  border: 1px solid #2a3342;
+  border-radius: 10px;
+  background: #0f1218;
+  color: var(--text);
+}
+.input:focus { outline: none; border-color: #3a4558; }
+
+.row { display: flex; gap: 8px; align-items: center; }
+
+.err { color: #ff9aa2; }
+.hidden { display: none; }

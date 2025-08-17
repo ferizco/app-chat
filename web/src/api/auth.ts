@@ -1,20 +1,17 @@
-import type { LoginResp } from '../types';
+import type { LoginResp } from '../types/auth';
+import { http } from './http';
 
 export async function login(username: string, password: string): Promise<LoginResp> {
-  const res = await fetch('/api/auth/login', {
+  return http<LoginResp>('/api/auth/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ username, password }),
   });
-  if (!res.ok) throw new Error(await res.text());
-  return res.json();
 }
 
-export async function logout(): Promise<any> {
-  const res = await fetch('/api/auth/logout', {
+export async function logout(): Promise<{ status: string }> {
+  return http<{ status: string }>('/api/auth/logout', {
     method: 'POST',
-    credentials: 'include'
+    credentials: 'include',
   });
-  if (!res.ok) throw new Error(await res.text());
-  return res.json();
 }

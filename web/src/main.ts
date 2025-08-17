@@ -1,6 +1,9 @@
-import './style.css';
-import { renderUsersView, loadUsers } from './views/usersView';
+import { init } from './router';
+import './styles/variable.css';
+import './styles/base.css';
+import './styles/layout.css';
+import './styles/utilities.css';
 
 const app = document.getElementById('app')!;
-renderUsersView(app);
-loadUsers();
+init(app);
+
