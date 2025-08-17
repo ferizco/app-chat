@@ -16,6 +16,9 @@ func Register(app *fiber.App, db *gorm.DB, jwtSecret string) {
 	auth := handlers.AuthHandler{DB: db, JWTSecret: jwtSecret, Blacklist: bl}
 	app.Post("/api/auth/login", auth.Login)
 
+	ah := handlers.AliasHandler{DB: db}
+	app.Get("/api/alias", ah.List_Alias)
+
 	app.Use("/api", middleware.AuthRequired(middleware.AuthConfig{
 		Secret: jwtSecret, Blacklist: bl,
 	}))
@@ -23,5 +26,7 @@ func Register(app *fiber.App, db *gorm.DB, jwtSecret string) {
 
 	// Users
 	uh := handlers.UserHandler{DB: db}
+
 	app.Get("/api/users", uh.List)
+
 }
