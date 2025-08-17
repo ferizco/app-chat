@@ -9,10 +9,10 @@ import (
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 
-	"github.com/ferizco/chat-app/server/internal/httpx"
-	"github.com/ferizco/chat-app/server/internal/logger"
-	"github.com/ferizco/chat-app/server/internal/models"
-	"github.com/ferizco/chat-app/server/internal/security"
+	"github.com/ferizco/chat-app/server/app/httpx"
+	"github.com/ferizco/chat-app/server/app/logger"
+	"github.com/ferizco/chat-app/server/app/security"
+	"github.com/ferizco/chat-app/server/users/models"
 	"golang.org/x/crypto/bcrypt"
 )
 

@@ -6,8 +6,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
 
-	"github.com/ferizco/chat-app/server/internal/httpx"
-	"github.com/ferizco/chat-app/server/internal/models"
+	"github.com/ferizco/chat-app/server/app/httpx"
+	"github.com/ferizco/chat-app/server/users/models"
 )
 
 type UserHandler struct{ DB *gorm.DB }
