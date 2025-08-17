@@ -10,7 +10,9 @@ export function init(app: HTMLElement) {
       view === 'users'
         ? UsersPage({ onLogout: () => render('login') })
         : view === 'signup'
-        ? SignupPage()
+        ? SignupPage({
+            onSignup: () => render('login'),
+        })
         : LoginPage({
             onLoggedIn: () => render('users'),    // sementara: nanti disambung API
             onGoSignup: () => render('signup'),

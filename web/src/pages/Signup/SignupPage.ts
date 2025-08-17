@@ -1,9 +1,17 @@
 // src/pages/Signup/SignupPage.ts
 import { getAlias } from '../../api/alias';
+import { signup } from '../../api/auth';
 
-type AliasItem = { id_alias: string; alias_name: string };
+type AliasItem = { 
+  id_alias: string; 
+  alias_name: string 
+};
 
-export function SignupPage() {
+type Props = { 
+  onSignup: () => void;
+};
+
+export function SignupPage({ onSignup }: Props) {
   const root = document.createElement('div');
   root.innerHTML = `
     <div class="container">
@@ -73,7 +81,7 @@ export function SignupPage() {
   aliasB.onclick = () => selectAliasBtn(aliasB);
   aliasShuffle.onclick = () => reshuffle();
 
-  form.onsubmit = (e) => {
+  form.onsubmit = async (e) => {
     e.preventDefault();
 
     const name = (root.querySelector<HTMLInputElement>('#name')?.value || '').trim();
@@ -93,6 +101,11 @@ export function SignupPage() {
       return;
     }
 
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      showError('Format email tidak valid.');
+      return;
+    }
+
     // log semua value
     console.log({
       name,
@@ -101,6 +114,12 @@ export function SignupPage() {
       password,
       id_alias
     });
+
+    try {
+      await signup(name, username, email, password, id_alias);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   loadAlias();

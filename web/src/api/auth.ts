@@ -1,7 +1,7 @@
-import type { LoginResp } from '../types/auth';
+import type { LoginResp, SignupResp } from '../types/auth';
 import { http } from './http';
 
-export async function signup(name: string, username: string, email:string, pass:string, id_alias:string): Promise<LoginResp> {
+export async function signup(name: string, username: string, email:string, pass:string, id_alias:string): Promise<SignupResp> {
   return http<LoginResp>('/api/create/user', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
