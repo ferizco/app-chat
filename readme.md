@@ -3,7 +3,7 @@
 ## Stack 
 - server : Go Fiber 
 - Web    : Typescript 
-- DB     : sqlite3
+- DB     : postgresql
 
 ## install backend
 - cd server
@@ -15,16 +15,22 @@
 - npm install
 - npm run dev
 
+## DB Migration 
+- create user app_chat_user dengan password app-chat
+- port db 5432 
+- create database app_chat 
+- GRANT ALL ON DATABASE app_chat TO app_chat_user;
+
 ## user login 
 - user: alice, bob, charlie (pilih salah satu)
 - pass: 123456
 
 ## API User List 
-- POST /api/auth/login
-- POST /api/auth/logout
-- GET /api/alias
-- GET /api/users
-- POST /api/create/user
+- POST /api/v1/user/login
+- POST /api/v1/user/logout
+- GET /api/v1/user/listalias
+- GET /api/v1/user/listuser
+- POST /api/v1/user/create
 
 
 ## Workflow 
