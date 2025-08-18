@@ -14,7 +14,17 @@ import (
 
 func main() {
 	cfg := config.Load()
+
+	// migration dulu
+	db.MigrateUp(cfg.DSN)
+
+	// koneksi gorm
 	d := db.Open(cfg.DSN)
+
+	// seed hanya di dev
+	if cfg.AppEnv != "production" {
+		db.Seed(cfg.DSN)
+	}
 
 	app := fiber.New()
 	app.Use(recover.New(), logger.New())
