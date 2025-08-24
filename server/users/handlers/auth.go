@@ -71,6 +71,7 @@ func (h AuthHandler) Login(c *fiber.Ctx) error {
 		"token": signed,
 		"user":  fiber.Map{"id": u.ID, "username": u.Username},
 	})
+
 }
 
 // Logout: masukkan token ke blacklist sampai exp & hapus cookie.

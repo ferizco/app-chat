@@ -7,7 +7,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
 
-	"github.com/ferizco/chat-app/server/app/httpx"
+	httpx "github.com/ferizco/chat-app/server/app/httpx"
 	"github.com/ferizco/chat-app/server/app/security"
 )
 
