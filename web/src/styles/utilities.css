@@ -9,9 +9,9 @@
 .btn {
   padding: 8px 12px;
   border-radius: 10px;
-  background: var(--primary);
+  background: var(--btnbgPrimary);
   border: none;
-  color: var(--text);
+  color: var(--btnTextPrimary);
   cursor: pointer;
 }
 .btn:hover {
@@ -23,6 +23,45 @@
   gap: 10px;
   margin-top: 8px;
 }
+
+.form-label {
+  font-size: 13px;
+  color: var(--textPrimary);
+}
+
+.form-input {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--secondary);
+  color: var(--textSecondary);
+  border: none;
+  width: 100%;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #3a4558;
+}
+
+.form-input-with-toggle {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.form-input-with-toggle .form-input {
+  padding-right: 42px;
+} 
+
+.form-input-with-toggle .toggle-pass {
+  position: absolute;
+  right: 6px;
+  height: 32px;
+  padding: 0 10px;
+  background: transparent;
+  color: var(--textPrimary);
+}
+
 .label {
   font-size: 13px;
   color: var(--textPrimary);

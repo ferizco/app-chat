@@ -14,4 +14,10 @@
   --primary: #56b8f3;
   --secondary: #f4f8fb;
   --shadow: rgba(149, 157, 165, 0.2);
+  --btnbgPrimary: #56b8f3;
+  --btnbgSecondary: #f4f8fb;
+  --btnTextPrimary: #ffffff;
+  --btnTextSecondary: #0b161f;
+  --linkPrimary: #56b8f3;
+  --linkSecondary: #5b5d60;
 }
