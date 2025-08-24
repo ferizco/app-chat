@@ -1,26 +1,26 @@
-import { LoginPage } from './pages/Login/LoginPage';
-import { UsersPage } from './pages/Users/UsersPage';
-import { SignupPage } from './pages/Signup/SignupPage';
+import { LoginPage } from "./pages/Login/LoginPage";
+import { UsersPage } from "./pages/Users/UsersPage";
+import { SignupPage } from "./pages/Signup/SignupPage";
 
-type View = 'login' | 'signup' | 'users';
+type View = "login" | "signup" | "users";
 
 export function init(app: HTMLElement) {
   const render = (view: View) => {
     const el =
-      view === 'users'
-        ? UsersPage({ onLogout: () => render('login') })
-        : view === 'signup'
+      view === "users"
+        ? UsersPage({ onLogout: () => render("login") })
+        : view === "signup"
         ? SignupPage({
-            onSignup: () => render('login'),   
-            onGoLogin: () => render('login'), 
+            onSignup: () => render("login"),
+            onGoLogin: () => render("login"),
           })
         : LoginPage({
-            onLoggedIn: () => render('users'),    // sementara: nanti disambung API
-            onGoSignup: () => render('signup'),
+            onLoggedIn: () => render("users"),
+            onGoSignup: () => render("signup"),
           });
 
     app.replaceChildren(el);
   };
-  
-  render('login');
+
+  render("login");
 }

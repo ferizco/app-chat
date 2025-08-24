@@ -1,8 +1,17 @@
 :root {
-  --bg: #0b0c10;
+  --bg: #f6f7f9;
   --card: #111317;
   --soft: #1a1d24;
   --text: #e8eaed;
   --muted: #a3a6ad;
   --accent: #4da3ff;
+
+  --textPrimary: #0b161f;
+  --textSecondary: #5b5d60;
+  --userAvatar: #cfe7f9;
+  --cardPrimary: #ffffff;
+  --cardSecondary: #f2f9ff;
+  --primary: #56b8f3;
+  --secondary: #f4f8fb;
+  --shadow: rgba(149, 157, 165, 0.2);
 }
