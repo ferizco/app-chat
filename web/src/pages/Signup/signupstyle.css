@@ -1,0 +1,36 @@
+.signup .image-wrapper {
+  width: 48%;
+}
+
+.signup .card {
+  width: 48%;
+}
+
+.linktext {
+  background: none;
+  border: none;
+  padding: 0;
+  margin-left: 4px;
+  color: var(--linkPrimary);
+  cursor: pointer;
+  font: inherit;
+  text-decoration: underline transparent;
+  transition: color 0.2s ease, text-decoration-color 0.2s ease;
+}
+
+.linktext:hover {
+  color: var(--linkSecondary);
+  text-decoration-color: var(--linkSecondary);
+}
+
+.btn.chip {
+  border: 1px solid var(--btnbgPrimary);
+  background: var(--btnbgSecondary);
+  color: var(--btnbgPrimary);
+}
+
+.btn.chip.active {
+  border: none;
+  background: var(--btnbgPrimary);
+  color: var(--btnTextPrimary);
+}
