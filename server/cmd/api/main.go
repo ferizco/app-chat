@@ -22,9 +22,9 @@ func main() {
 	d := db.Open(cfg.DSN)
 
 	// seed hanya di dev
-	if cfg.AppEnv != "production" {
-		db.Seed(cfg.DSN)
-	}
+	// if cfg.AppEnv != "production" {
+	// 	db.Seed(cfg.DSN)
+	// }
 
 	app := fiber.New()
 	app.Use(recover.New(), logger.New())
