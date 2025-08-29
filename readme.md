@@ -2,7 +2,7 @@
 
 ## Stack 
 - server : Go Fiber 
-- Web    : Typescript 
+- Web    : React
 - DB     : postgresql
 
 ## install backend
@@ -24,13 +24,6 @@
 ## user login 
 - user: alice, bob, charlie (pilih salah satu)
 - pass: 123456
-
-## API User List 
-- POST /api/v1/user/login
-- POST /api/v1/user/logout
-- GET /api/v1/user/listalias
-- GET /api/v1/user/listuser
-- POST /api/v1/user/create
 
 
 ## Workflow 
