@@ -2,7 +2,6 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -12,6 +11,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type CreateUserHandler struct{ DB *gorm.DB }
@@ -22,7 +22,7 @@ func (h CreateUserHandler) Create(c *fiber.Ctx) error {
 		Name     string `json:"name"`
 		Username string `json:"username"`
 		Email    string `json:"email"`
-		Pass     string `json:"pass"`
+		Pass     string `json:"password"`
 		IDAlias  string `json:"id_alias"`
 	}
 	if err := c.BodyParser(&body); err != nil {
@@ -34,95 +34,61 @@ func (h CreateUserHandler) Create(c *fiber.Ctx) error {
 
 	// 2) Validasi minimal
 	if body.Name == "" || body.Username == "" || body.Email == "" || body.Pass == "" {
-		return httpx.Error(c, http.StatusBadRequest, "name/username/email/pass is required")
-	}
-
-	// 3) Mulai transaksi (biar konsisten)
-	tx := h.DB.Begin()
-	if tx.Error != nil {
-		return httpx.Error(c, http.StatusInternalServerError, "cannot start transaction")
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-		}
-	}()
-
-	// 4) Email harus unik
-	var cnt int64
-	if err := tx.Table("users").Where("email = ?", body.Email).Count(&cnt).Error; err != nil {
-		tx.Rollback()
-		return httpx.Error(c, http.StatusInternalServerError, "db error (email check)")
-	}
-	if cnt > 0 {
-		tx.Rollback()
-		return httpx.Error(c, http.StatusConflict, "email already used")
+		return httpx.Error(c, http.StatusBadRequest, "name/username/email/password is required")
 	}
 
 	// (Opsional) validasi alias kalau diisi
 	if body.IDAlias != "" {
-		var ok int64
-		if err := tx.Table("alias").Where("id_alias = ?", body.IDAlias).Count(&ok).Error; err != nil {
-			tx.Rollback()
+		var exists int64
+		if err := h.DB.Table("alias").Where("id_alias = ?", body.IDAlias).Count(&exists).Error; err != nil {
 			return httpx.Error(c, http.StatusInternalServerError, "db error (alias check)")
 		}
-		if ok == 0 {
-			tx.Rollback()
+		if exists == 0 {
 			return httpx.Error(c, http.StatusBadRequest, "id_alias not found")
 		}
 	}
 
-	// 5) Generate ID berurutan: u1, u2, ...
-	var nextNum int64
-	if err := tx.
-		Raw(`SELECT COALESCE(MAX(CAST(SUBSTR(id, 2) AS INTEGER)), 0) + 1 FROM users`).
-		Scan(&nextNum).Error; err != nil {
-		tx.Rollback()
-		return httpx.Error(c, http.StatusInternalServerError, "db error (next id)")
-	}
-	newID := fmt.Sprintf("u%d", nextNum)
-
-	// 6) Hash password (cost 12 agar konsisten dgn sample kamu)
+	// 3) Hash password
 	hashed, err := bcrypt.GenerateFromPassword([]byte(body.Pass), 12)
 	if err != nil {
-		tx.Rollback()
 		return httpx.Error(c, http.StatusInternalServerError, "failed to hash password")
 	}
 
-	// 7) Insert user
+	// 4) Insert user — JANGAN set u.ID (biarkan DB generate 'u<seq>')
 	u := models.User{
-		ID:        newID,
+		// ID: "",  // kosongkan
 		Username:  body.Username,
 		CreatedAt: time.Now(),
 		PassHash:  string(hashed),
 		Name:      body.Name,
 		Email:     body.Email,
-		IDAlias:   body.IDAlias, // bisa kosong
+		IDAlias:   body.IDAlias,
 	}
-	if err := tx.Create(&u).Error; err != nil {
-		tx.Rollback()
-		// kalau ada unique constraint lain (username/email), bisa muncul di sini juga
+
+	if err := h.DB.
+		Clauses(clause.Returning{}). // <- ini penting biar ID diisi balik
+		Create(&u).Error; err != nil {
+
+		if strings.Contains(err.Error(), "duplicate key value") {
+			return httpx.Error(c, http.StatusConflict, "username or email already used")
+		}
 		return httpx.Error(c, http.StatusInternalServerError, "db error (create user)")
 	}
 
-	// 8) Commit
-	if err := tx.Commit().Error; err != nil {
-		return httpx.Error(c, http.StatusInternalServerError, "db error (commit)")
-	}
-
-	// 9) Response (opsional: include alias_name)
-	var aliasName string
+	// 5) Response (opsional: sertakan alias_name)
+	var aliasName *string
 	if u.IDAlias != "" {
 		_ = h.DB.Table("alias").Select("alias_name").Where("id_alias = ?", u.IDAlias).Scan(&aliasName).Error
 	}
 
 	type UserDTO struct {
-		ID        string `json:"id"`
-		Username  string `json:"username"`
-		Email     string `json:"email"`
-		AliasName string `json:"alias_name,omitempty"`
-		CreatedAt string `json:"created_at"`
+		ID        string  `json:"id"` // ← otomatis 'u<seq>' dari DB
+		Username  string  `json:"username"`
+		Email     string  `json:"email"`
+		AliasName *string `json:"alias_name,omitempty"`
+		CreatedAt string  `json:"created_at"`
 	}
+
 	return httpx.Success(c, "created", UserDTO{
 		ID:        u.ID,
 		Username:  u.Username,
