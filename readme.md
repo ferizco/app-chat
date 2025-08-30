@@ -43,3 +43,4 @@
 6. uncheck Push the new branch to remote
 7. klik start
 8. jika selesai coding, add,commit,dan merged seperti biasa
+9. git switch main untuk pindah ke branch main dan lakukan pull request
