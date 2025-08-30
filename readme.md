@@ -33,3 +33,13 @@
 4. req pull request di GitHub, merged branch baru ke main 
 5. pastikan tidak ada conflict dan hapus branch tersebut
 6. git switch main untuk pindah ke branch main dan lakukan pull request
+
+## Workflow with JIRA
+1. Buat subtask dari task JIRA
+2. assign ke developer 
+3. start workflow subtask melalui vs code 
+4. pilih transition issue ke inprogress
+5. isi informasi yang diperlukan (source branch, nama lokal branch)
+6. uncheck Push the new branch to remote
+7. klik start
+8. jika selesai coding, add,commit,dan merged seperti biasa
