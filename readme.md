@@ -34,7 +34,7 @@
 5. pastikan tidak ada conflict dan hapus branch tersebut
 6. git switch main untuk pindah ke branch main dan lakukan pull request
 
-## Workflow with JIRA
+## Workflow with Jira
 1. Buat subtask dari task JIRA
 2. assign ke developer 
 3. start workflow subtask melalui vs code 
