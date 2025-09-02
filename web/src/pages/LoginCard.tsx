@@ -52,56 +52,82 @@ export default function LoginCard({ onSuccess, onSwitchToSignup }: Props) {
       display="flex"
       justifyContent="center"
       alignItems="center"
-      gap={8}
       sx={{ p: 2 }}
     >
-      <Box>
-        <img
+      <Box
+        sx={{
+          display: "flex",
+          gap: { xs: 2, md: 8 },
+          flexDirection: { xs: "column", md: "row" },
+          alignItems: { xs: "center", md: "center" },
+          width: "100%",
+          maxWidth: 980,
+        }}
+      >
+        {/* Gambar: di mobile 100px, di desktop 500px */}
+        <Box
+          component="img"
           src={sideImg}
           alt="Login Illustration"
-          style={{ width: 500, maxWidth: "100%", borderRadius: 16 }}
+          sx={{
+            width: { xs: 200, md: 500 },
+            maxWidth: "100%",
+            borderRadius: 2,
+            order: { xs: 0, md: 0 },
+          }}
         />
+        <Card
+          sx={{
+            width: { xs: "100%", sm: 380 },
+            p: 2,
+            order: { xs: 1, md: 1 },
+          }}
+        >
+          <CardContent>
+            <Typography variant="h5" mb={2}>
+              LOGIN
+            </Typography>
+
+            <TextField
+              fullWidth
+              label="Username"
+              margin="normal"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              variant="filled"
+            />
+
+            <PasswordField
+              label="Password"
+              value={password}
+              onChange={setPassword}
+            />
+
+            {err && (
+              <Alert severity="error" sx={{ mt: 1 }}>
+                {err}
+              </Alert>
+            )}
+
+            <Button
+              fullWidth
+              variant="contained"
+              sx={{ mt: 2 }}
+              disabled={loading}
+              onClick={submit}
+            >
+              {loading ? "Memproses…" : "Login"}
+            </Button>
+
+            <Typography mt={2} variant="body2">
+              Don’t have an account?{" "}
+              <Link component="button" onClick={onSwitchToSignup}>
+                Sign up
+              </Link>
+            </Typography>
+          </CardContent>
+        </Card>
       </Box>
-      <Card sx={{ width: 360, padding: 2 }}>
-        <CardContent>
-          <Typography variant="h5" mb={2}>
-            LOGIN
-          </Typography>
-          <TextField
-            fullWidth
-            label="Username"
-            margin="normal"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            variant="filled"
-          />
-          <PasswordField
-            label="Password"
-            value={password}
-            onChange={setPassword}
-          />
-          {err && (
-            <Alert severity="error" sx={{ mt: 1 }}>
-              {err}
-            </Alert>
-          )}
-          <Button
-            fullWidth
-            variant="contained"
-            sx={{ mt: 2 }}
-            disabled={loading}
-            onClick={submit}
-          >
-            {loading ? "Memproses…" : "Login"}
-          </Button>
-          <Typography mt={2} variant="body2">
-            Don’t have an account?{" "}
-            <Link component="button" onClick={onSwitchToSignup}>
-              Sign up
-            </Link>
-          </Typography>
-        </CardContent>
-      </Card>
     </Box>
   );
 }
