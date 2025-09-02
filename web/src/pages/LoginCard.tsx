@@ -10,6 +10,8 @@ import {
   Link,
 } from "@mui/material";
 import { login } from "../api/user";
+import PasswordField from "../components/PasswordField";
+import sideImg from "../assets/firstLook.png";
 
 type Props = {
   onSuccess: () => void;
@@ -45,8 +47,22 @@ export default function LoginCard({ onSuccess, onSwitchToSignup }: Props) {
   };
 
   return (
-    <Box minHeight="100dvh" display="grid" sx={{ placeItems: "center", p: 2 }}>
-      <Card sx={{ width: 360 }}>
+    <Box
+      minHeight="100dvh"
+      display="flex"
+      justifyContent="center"
+      alignItems="center"
+      gap={8}
+      sx={{ p: 2 }}
+    >
+      <Box>
+        <img
+          src={sideImg}
+          alt="Login Illustration"
+          style={{ width: 500, maxWidth: "100%", borderRadius: 16 }}
+        />
+      </Box>
+      <Card sx={{ width: 360, padding: 2 }}>
         <CardContent>
           <Typography variant="h5" mb={2}>
             LOGIN
@@ -57,14 +73,12 @@ export default function LoginCard({ onSuccess, onSwitchToSignup }: Props) {
             margin="normal"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
+            variant="filled"
           />
-          <TextField
-            fullWidth
+          <PasswordField
             label="Password"
-            type="password"
-            margin="normal"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={setPassword}
           />
           {err && (
             <Alert severity="error" sx={{ mt: 1 }}>
