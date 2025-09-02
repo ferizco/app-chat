@@ -22,6 +22,7 @@ export default function PasswordField({
       type={show ? "text" : "password"}
       variant="filled"
       margin="normal"
+      sx={{ mt: 0 }}
       value={value}
       onChange={(e) => onChange(e.target.value)}
       InputProps={{

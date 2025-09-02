@@ -10,8 +10,12 @@ import {
   Link,
   CircularProgress,
   Stack,
+  IconButton,
 } from "@mui/material";
 import { listAlias, signup } from "../api/user";
+import PasswordField from "../components/PasswordField";
+import ShuffleIcon from "@mui/icons-material/Shuffle";
+import sideImg from "../assets/firstLook.png";
 
 type Alias = { id_alias: string; alias_name: string };
 
@@ -88,8 +92,7 @@ export default function SignupCard({ onSuccess, onSwitchToLogin }: Props) {
         throw new Error("All fields are required");
       if (password !== confirm)
         throw new Error("Password confirmation does not match");
-      if (!aliasId)
-        throw new Error("Please select an alias first");
+      if (!aliasId) throw new Error("Please select an alias first");
 
       const payload = {
         name,
@@ -112,109 +115,177 @@ export default function SignupCard({ onSuccess, onSwitchToLogin }: Props) {
   const isSelected = (a: Alias | null) => !!a && a.id_alias === aliasId;
 
   return (
-    <Box minHeight="100dvh" display="grid" sx={{ placeItems: "center", p: 2 }}>
-      <Card sx={{ width: 450 }}>
-        <CardContent>
-          <Typography variant="h5" mb={2}>
-            SIGN UP
-          </Typography>
+    <Box
+      minHeight="100dvh"
+      display="flex"
+      justifyContent="center"
+      alignItems="center"
+      sx={{ pt: 4, pb: 4, px: 2, transition: "all .25s ease" }}
+    >
+      <Box
+        sx={{
+          display: "flex",
+          gap: { xs: 2, md: 8 },
+          flexDirection: { xs: "column", md: "row" },
+          alignItems: { xs: "center", md: "center" },
+          width: "100%",
+          maxWidth: 980,
+        }}
+      >
+        <Box
+          component="img"
+          src={sideImg}
+          alt="Login Illustration"
+          sx={{
+            width: { xs: 200, md: 500 },
+            maxWidth: "100%",
+            borderRadius: 2,
+            order: { xs: 0, md: 0 },
+          }}
+        />
 
-          <TextField
-            fullWidth
-            label="Name"
-            margin="normal"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-          <TextField
-            fullWidth
-            label="Username"
-            margin="normal"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
-          <TextField
-            fullWidth
-            label="Email"
-            margin="normal"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <TextField
-            fullWidth
-            label="Password"
-            type="password"
-            margin="normal"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <TextField
-            fullWidth
-            label="Confirm Password"
-            type="password"
-            margin="normal"
-            value={confirm}
-            onChange={(e) => setConfirm(e.target.value)}
-          />
+        <Card
+          sx={{
+            width: { xs: "100%", sm: 500 },
+            p: 2,
+            order: { xs: 1, md: 1 },
+          }}
+        >
+          <CardContent>
+            <Typography variant="h5" mb={2}>
+              SIGN UP
+            </Typography>
 
-          <Typography variant="subtitle2" mt={2} color="text.secondary">
-            Select an Alias
-          </Typography>
+            <TextField
+              fullWidth
+              label="Name"
+              margin="normal"
+              value={name}
+              variant="filled"
+              onChange={(e) => setName(e.target.value)}
+              sx={{ mt: 0 }}
+            />
 
-          {aliasLoading ? (
-            <Stack direction="row" alignItems="center" gap={1} mt={1}>
-              <CircularProgress size={18} />
-            </Stack>
-          ) : aliasError ? (
-            <Alert severity="error" sx={{ mt: 1 }}>
-              {aliasError}
-            </Alert>
-          ) : (
-            <Stack direction="row" spacing={1} mt={1} flexWrap="wrap">
-              <Button
-                variant={isSelected(aliasA) ? "contained" : "outlined"}
-                disabled={!aliasA}
-                onClick={() => handleChoose(aliasA)}
+            <TextField
+              fullWidth
+              label="Username"
+              margin="normal"
+              value={username}
+              variant="filled"
+              onChange={(e) => setUsername(e.target.value)}
+              sx={{ mt: 0 }}
+            />
+
+            <TextField
+              fullWidth
+              label="Email"
+              margin="normal"
+              value={email}
+              variant="filled"
+              onChange={(e) => setEmail(e.target.value)}
+              sx={{ mt: 0 }}
+            />
+
+            <PasswordField
+              label="Password"
+              value={password}
+              onChange={setPassword}
+            />
+
+            <PasswordField
+              label="Confirm Password"
+              value={confirm}
+              onChange={setConfirm}
+            />
+
+            <Typography variant="subtitle2" mt={2} color="text.primary">
+              Select an Alias
+            </Typography>
+
+            {aliasLoading ? (
+              <Stack direction="row" alignItems="center" gap={1} mt={1}>
+                <CircularProgress size={18} />
+              </Stack>
+            ) : aliasError ? (
+              <Alert severity="error" sx={{ mt: 1 }}>
+                {aliasError}
+              </Alert>
+            ) : (
+              <Stack
+                direction="row"
+                spacing={1}
+                mt={1}
+                alignItems="center"
+                sx={{ width: "100%" }} 
               >
-                {aliasA ? aliasA.alias_name : "—"}
-              </Button>
-              <Button
-                variant={isSelected(aliasB) ? "contained" : "outlined"}
-                disabled={!aliasB}
-                onClick={() => handleChoose(aliasB)}
-              >
-                {aliasB ? aliasB.alias_name : "—"}
-              </Button>
-              <Button variant="text" onClick={() => setRoll((r) => r + 1)}>
-                Randomize
-              </Button>
-            </Stack>
-          )}
+                <Stack
+                  direction="row"
+                  flexWrap="wrap"
+                  sx={{ flex: 1, minWidth: 0 }} 
+                >
+                  <Button
+                    variant={isSelected(aliasA) ? "contained" : "outlined"}
+                    disabled={!aliasA}
+                    onClick={() => handleChoose(aliasA)}
+                    sx={{ fontSize: "0.75rem", px: 1.5, py: 0.5, m: 0.5 }}
+                  >
+                    {aliasA ? aliasA.alias_name : "—"}
+                  </Button>
+                  
+                  <Button
+                    variant={isSelected(aliasB) ? "contained" : "outlined"}
+                    disabled={!aliasB}
+                    onClick={() => handleChoose(aliasB)}
+                    sx={{ fontSize: "0.75rem", px: 1.5, py: 0.5, m: 0.5 }}
+                  >
+                    {aliasB ? aliasB.alias_name : "—"}
+                  </Button>
+                </Stack>
 
-          {err && (
-            <Alert severity="error" sx={{ mt: 1 }}>
-              {err}
-            </Alert>
-          )}
+                <IconButton
+                  onClick={() => setRoll((r) => r + 1)}
+                  sx={{
+                    ml: "auto",
+                    flexShrink: 0, 
+                    backgroundColor: (t) => t.custom.btn.bgPrimary,
+                    color: (t) => t.custom.btn.textPrimary,
+                    "&:hover": {
+                      backgroundColor: (t) => t.custom.btn.bgPrimary,
+                      filter: "brightness(0.95)",
+                      boxShadow: (t) => `0 8px 24px ${t.custom.shadowColor}`,
+                    },
+                  }}
+                >
+                  <ShuffleIcon fontSize="small"/>
+                </IconButton>
+              </Stack>
+            )}
 
-          <Button
-            fullWidth
-            variant="contained"
-            sx={{ mt: 2 }}
-            disabled={loading}
-            onClick={submit}
-          >
-            {loading ? "Processing…" : "Create"}
-          </Button>
+            {err && (
+              <Alert severity="error" sx={{ mt: 1 }}>
+                {err}
+              </Alert>
+            )}
 
-          <Typography mt={2} variant="body2">
-            Already have an account?{" "}
-            <Link component="button" onClick={onSwitchToLogin}>
-              Login
-            </Link>
-          </Typography>
-        </CardContent>
-      </Card>
+            <Button
+              fullWidth
+              variant="contained"
+              sx={{ mt: 2 }}
+              disabled={loading}
+              onClick={submit}
+            >
+              {loading ? "Processing…" : "Create"}
+            </Button>
+
+            <Typography mt={2} variant="body2">
+              Already have an account?{" "}
+              <Link component="button" onClick={onSwitchToLogin}>
+                Login
+              </Link>
+            </Typography>
+          </CardContent>
+        </Card>
+      </Box>
     </Box>
   );
 }

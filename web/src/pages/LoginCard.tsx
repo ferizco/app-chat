@@ -52,7 +52,7 @@ export default function LoginCard({ onSuccess, onSwitchToSignup }: Props) {
       display="flex"
       justifyContent="center"
       alignItems="center"
-      sx={{ p: 2 }}
+      sx={{ pt: 4, pb: 4, px: 2, transition: "all .25s ease" }}
     >
       <Box
         sx={{
@@ -64,7 +64,6 @@ export default function LoginCard({ onSuccess, onSwitchToSignup }: Props) {
           maxWidth: 980,
         }}
       >
-        {/* Gambar: di mobile 100px, di desktop 500px */}
         <Box
           component="img"
           src={sideImg}
@@ -78,7 +77,7 @@ export default function LoginCard({ onSuccess, onSwitchToSignup }: Props) {
         />
         <Card
           sx={{
-            width: { xs: "100%", sm: 380 },
+            width: { xs: "100%", sm: 500 },
             p: 2,
             order: { xs: 1, md: 1 },
           }}
@@ -95,6 +94,7 @@ export default function LoginCard({ onSuccess, onSwitchToSignup }: Props) {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               variant="filled"
+              sx={{ mt: 0 }}
             />
 
             <PasswordField
