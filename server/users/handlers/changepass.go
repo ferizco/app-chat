@@ -18,7 +18,8 @@ type ChangePassHandler struct{ DB *gorm.DB }
 func (h ChangePassHandler) ChangePassword(c *fiber.Ctx) error {
 	selfID, _ := c.Locals("userID").(string)
 	if selfID == "" {
-		return httpx.Error(c, http.StatusUnauthorized, "unauthorized")
+		httpx.ErrorLogOnly(errors.New("user id null"), "ChangePassError")
+		return httpx.Error(c, http.StatusUnauthorized, "You Are Unauthorized")
 	}
 
 	var body struct {
@@ -27,7 +28,8 @@ func (h ChangePassHandler) ChangePassword(c *fiber.Ctx) error {
 		ConfirmPass string `json:"confirm_pass"` // opsional
 	}
 	if err := c.BodyParser(&body); err != nil {
-		return httpx.Error(c, http.StatusBadRequest, "invalid json body")
+		httpx.ErrorLogOnly(err, "ChangePassError")
+		return httpx.Error(c, http.StatusBadRequest, "Your Request invalid")
 	}
 
 	body.OldPass = strings.TrimSpace(body.OldPass)
@@ -36,51 +38,62 @@ func (h ChangePassHandler) ChangePassword(c *fiber.Ctx) error {
 
 	// Validasi dasar
 	if body.OldPass == "" || body.NewPass == "" {
-		return httpx.Error(c, http.StatusBadRequest, "old_pass and new_pass are required")
+		httpx.ErrorLogOnly(errors.New("Oldpass & NewPass null"), "ValidationError")
+		return httpx.Error(c, http.StatusBadRequest, "old password and new password are required")
 	}
 	if body.ConfirmPass != "" && body.NewPass != body.ConfirmPass {
-		return httpx.Error(c, http.StatusBadRequest, "new_pass and confirm_pass do not match")
+		httpx.ErrorLogOnly(errors.New("new_pass and confirm_pass do not match"), "ValidationError")
+		return httpx.Error(c, http.StatusBadRequest, "new password and confirm password do not match")
 	}
 	if len(body.NewPass) < 6 {
-		return httpx.Error(c, http.StatusBadRequest, "new_pass must be at least 8 characters")
+		httpx.ErrorLogOnly(errors.New("pass less than 6"), "ValidationError")
+		return httpx.Error(c, http.StatusBadRequest, "new password must be at least 8 characters")
 	}
 	if body.NewPass == body.OldPass {
-		return httpx.Error(c, http.StatusBadRequest, "new_pass must be different from old_pass")
+		httpx.ErrorLogOnly(errors.New("Oldpass & NewPass is same"), "ValidationError")
+		return httpx.Error(c, http.StatusBadRequest, "new password must be different from old password")
 	}
 
 	// Ambil user
 	var u models.User
 	if err := h.DB.Where("id = ?", selfID).Take(&u).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return httpx.Error(c, http.StatusNotFound, "user not found")
+			httpx.ErrorLogOnly(err, "user not found")
+			return httpx.Error(c, http.StatusNotFound, "Your Request invalid")
 		}
-		return httpx.Error(c, http.StatusInternalServerError, "DB ERROR")
+		httpx.ErrorLogOnly(err, "DB ERROR")
+		return httpx.Error(c, http.StatusInternalServerError, "The server is currently unavailable")
 	}
 
 	// Verifikasi old_pass
 	if err := bcrypt.CompareHashAndPassword([]byte(u.PassHash), []byte(body.OldPass)); err != nil {
-		return httpx.Error(c, http.StatusBadRequest, "old_pass is incorrect")
+		httpx.ErrorLogOnly(err, "ComparepassError")
+		return httpx.Error(c, http.StatusBadRequest, "old password is incorrect")
 	}
 
 	// Hash new_pass (cost 12 agar konsisten)
 	hashed, err := bcrypt.GenerateFromPassword([]byte(body.NewPass), 12)
 	if err != nil {
-		return httpx.Error(c, http.StatusInternalServerError, "failed to hash password")
+		httpx.ErrorLogOnly(err, "hashError")
+		return httpx.Error(c, http.StatusInternalServerError, "Your Request invalid")
 	}
 
 	// Update dalam transaksi
 	tx := h.DB.Begin()
 	if tx.Error != nil {
-		return httpx.Error(c, http.StatusInternalServerError, "cannot start transaction")
+		httpx.ErrorLogOnly(err, "DB ERROR")
+		return httpx.Error(c, http.StatusInternalServerError, "The server is currently unavailable")
 	}
 	if err := tx.Model(&models.User{}).
 		Where("id = ?", selfID).
 		Update("pass_hash", string(hashed)).Error; err != nil {
 		tx.Rollback()
-		return httpx.Error(c, http.StatusInternalServerError, "DB ERROR (update pass)")
+		httpx.ErrorLogOnly(err, "DB ERROR")
+		return httpx.Error(c, http.StatusInternalServerError, "The server is currently unavailable")
 	}
 	if err := tx.Commit().Error; err != nil {
-		return httpx.Error(c, http.StatusInternalServerError, "DB ERROR (commit)")
+		httpx.ErrorLogOnly(err, "DB ERROR")
+		return httpx.Error(c, http.StatusInternalServerError, "The server is currently unavailable")
 	}
 
 	return httpx.Success(c, "password changed", nil)

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
 	"time"
 
@@ -30,19 +31,19 @@ type loginReq struct {
 func (h AuthHandler) Login(c *fiber.Ctx) error {
 	var req loginReq
 	if err := c.BodyParser(&req); err != nil {
-		// return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": "bad request"})
-		return httpx.Error(c, http.StatusBadRequest, "bad request")
+		httpx.ErrorLogOnly(err, "loginError")
+		return httpx.Error(c, http.StatusBadRequest, "The data you sent is not in the correct format, please check your input.")
 	}
 
 	var u models.User
 	if err := h.DB.Where("username = ?", req.Username).First(&u).Error; err != nil {
-		// return c.Status(http.StatusUnauthorized).JSON(fiber.Map{"error": "invalid credentials"})
-		return httpx.Error(c, http.StatusUnauthorized, "invalid credentials")
+		httpx.ErrorLogOnly(err, "username incorrect")
+		return httpx.Error(c, http.StatusUnauthorized, "The username or password you entered is incorrect.")
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(u.PassHash), []byte(req.Password)); err != nil {
-		// return c.Status(http.StatusUnauthorized).JSON(fiber.Map{"error": "invalid credentials"})
-		return httpx.Error(c, http.StatusUnauthorized, "invalid credentials")
+		httpx.ErrorLogOnly(err, "password incorect")
+		return httpx.Error(c, http.StatusUnauthorized, "The username or password you entered is incorrect.")
 	}
 
 	claims := jwt.MapClaims{
@@ -55,8 +56,8 @@ func (h AuthHandler) Login(c *fiber.Ctx) error {
 	tok := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	signed, err := tok.SignedString([]byte(h.JWTSecret))
 	if err != nil {
-		// return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": "sign token failed"})
-		return httpx.Error(c, http.StatusInternalServerError, "sign token failed")
+		httpx.ErrorLogOnly(err, "failed to sign JWT token")
+		return httpx.Error(c, http.StatusInternalServerError, "We couldn’t complete your login. Please try again later.")
 	}
 
 	// Set cookie httpOnly
@@ -79,17 +80,18 @@ func (h AuthHandler) Logout(c *fiber.Ctx) error {
 	tokenStr, _ := c.Locals("token").(string)
 	if tokenStr == "" {
 		tokenStr = c.Cookies("auth_token")
-		if tokenStr == "" {
-			// return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": "no token"})
-			return httpx.Error(c, http.StatusBadRequest, "no token")
-		}
 	}
+	if tokenStr == "" {
+		httpx.ErrorLogOnly(errors.New("no token found"), "logout")
+		return httpx.Error(c, http.StatusBadRequest, "Request not valid")
+	}
+
 	tok, err := jwt.Parse(tokenStr, func(t *jwt.Token) (interface{}, error) {
 		return []byte(h.JWTSecret), nil
 	})
 	if err != nil || !tok.Valid {
-		// return c.Status(http.StatusUnauthorized).JSON(fiber.Map{"error": "invalid token"})
-		return httpx.Error(c, http.StatusUnauthorized, "invalid token")
+		httpx.ErrorLogOnly(err, "invalid error")
+		return httpx.Error(c, http.StatusUnauthorized, "You are Unauthorized")
 	}
 	claims, _ := tok.Claims.(jwt.MapClaims)
 

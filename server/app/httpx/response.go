@@ -1,6 +1,7 @@
 package httpx
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
@@ -25,4 +26,11 @@ func Error(c *fiber.Ctx, httpStatus int, message string) error {
 		Status:  "error",
 		Message: message,
 	})
+}
+
+// ErrorLogOnly → cuma untuk log
+func ErrorLogOnly(err error, context string) {
+	if err != nil {
+		log.Printf("[ERROR] %s: %v", context, err)
+	}
 }
