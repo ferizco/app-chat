@@ -24,7 +24,8 @@ func (h UserHandler) List(c *fiber.Ctx) error {
 		tx = tx.Where("id <> ?", selfID)
 	}
 	if err := tx.Order("created_at desc").Find(&users).Error; err != nil {
-		return httpx.Error(c, http.StatusInternalServerError, "DB ERROR")
+		httpx.ErrorLogOnly(err, "DB ERROR")
+		return httpx.Error(c, http.StatusInternalServerError, "The server is currently unavailable")
 	}
 
 	type UserDTO struct {
@@ -46,7 +47,8 @@ func (h UserHandler) List(c *fiber.Ctx) error {
 func (h UserHandler) Profile(c *fiber.Ctx) error {
 	selfID, _ := c.Locals("userID").(string)
 	if selfID == "" {
-		return httpx.Error(c, fiber.StatusUnauthorized, "unauthorized")
+		httpx.ErrorLogOnly(errors.New("userid null"), "ProfileError")
+		return httpx.Error(c, fiber.StatusUnauthorized, "You Are Unauthorized")
 	}
 
 	var u models.User
@@ -55,9 +57,11 @@ func (h UserHandler) Profile(c *fiber.Ctx) error {
 		Where("id = ?", selfID).
 		Take(&u).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return httpx.Error(c, fiber.StatusNotFound, "user not found")
+			httpx.ErrorLogOnly(err, "ProfileError")
+			return httpx.Error(c, fiber.StatusNotFound, "Your request invalid")
 		}
-		return httpx.Error(c, fiber.StatusInternalServerError, "DB ERROR")
+		httpx.ErrorLogOnly(err, "DB ERROR")
+		return httpx.Error(c, fiber.StatusInternalServerError, "The server is currently unavailable")
 	}
 
 	type UserDTO struct {

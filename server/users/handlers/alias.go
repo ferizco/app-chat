@@ -15,7 +15,8 @@ func (h AliasHandler) List_Alias(c *fiber.Ctx) error {
 
 	var rows []models.Alias
 	if err := h.DB.Find(&rows).Error; err != nil {
-		return httpx.Error(c, http.StatusInternalServerError, "DB ERROR")
+		httpx.ErrorLogOnly(err, "DB ERROR")
+		return httpx.Error(c, http.StatusInternalServerError, "The server is currently unavailable")
 	}
 
 	type Alias struct {
