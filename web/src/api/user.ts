@@ -39,31 +39,96 @@ export type ListAliasResult = {
 }[];
 
 export async function login(payload: LoginPayload): Promise<LoginResult> {
-  console.log(payload);
-  const res = await axios.post<ApiResponse<LoginResult>>(
-    "api/v1/user/login",
-    payload,
-    { withCredentials: true }
-  );
-  if (res.data.status === "success") return res.data.data;
-  throw new Error(res.data.message || "Login gagal");
+  try {
+    const res = await axios.post<ApiResponse<LoginResult>>(
+      "api/v1/user/login",
+      payload,
+      {
+        withCredentials: true,
+        validateStatus: () => true, 
+      }
+    );
+
+    if (res.data.status === "success") {
+      return res.data.data;
+    }
+
+    throw new Error(res.data.message || "Login gagal");
+  } catch (err: any) {
+    if (axios.isAxiosError(err)) {
+      throw new Error(err.message || "Network error");
+    }
+    throw err;
+  }
 }
 
 export async function signup(payload: SignupPayload): Promise<SignupResult> {
-  const res = await axios.post<ApiResponse<SignupResult>>(
-    "api/v1/user/create",
-    payload,
-    { withCredentials: true }
-  );
-  if (res.data.status === "success") return res.data.data;
-  throw new Error(res.data.message || "Signup gagal");
+  try {
+    const res = await axios.post<ApiResponse<SignupResult>>(
+      "api/v1/user/create",
+      payload,
+      {
+        withCredentials: true,
+        validateStatus: () => true,
+      }
+    );
+
+    if (res.data.status === "success") {
+      return res.data.data;
+    }
+
+    throw new Error(res.data.message || "Signup gagal");
+  } catch (err: any) {
+    if (axios.isAxiosError(err)) {
+      throw new Error(err.message || "Network error");
+    }
+    throw err;
+  }
 }
 
 export async function listAlias(): Promise<ListAliasResult> {
-  const res = await axios.get<ApiResponse<ListAliasResult>>(
-    "api/v1/user/listalias",
-    { withCredentials: true }
-  );
-  if (res.data.status === "success") return res.data.data;
-  throw new Error(res.data.message || "Gagal memuat alias");
+  try {
+    const res = await axios.get<ApiResponse<ListAliasResult>>(
+      "api/v1/user/listalias",
+      {
+        withCredentials: true,
+        validateStatus: () => true,
+      }
+    );
+
+    if (res.data.status === "success") {
+      return res.data.data;
+    }
+
+    throw new Error(res.data.message || "Gagal memuat alias");
+  } catch (err: any) {
+    if (axios.isAxiosError(err)) {
+      throw new Error(err.message || "Network error");
+    }
+    throw err;
+  }
+}
+
+export async function logout(): Promise<void> {
+  try {
+    const res = await axios.post<ApiResponse<void>>(
+      "api/v1/user/logout",
+      {},
+      {
+        withCredentials: true,
+        validateStatus: () => true, 
+      }
+    );
+
+    if (res.data.status === "success") {
+      return;
+    }
+
+    throw new Error(res.data.message || "Logout gagal");
+  } catch (err: any) {
+    if (axios.isAxiosError(err)) {
+      throw new Error(err.message || "Network error");
+    }
+    throw err;
+  }
 }

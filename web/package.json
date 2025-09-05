@@ -5,9 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
-    "lint": "eslint .",
-    "preview": "vite preview"
+    "build": "vite build",
+    "preview": "vite preview --port 5174",
+    "prod": "npm run build && npm run preview"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

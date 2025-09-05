@@ -40,7 +40,7 @@ export default function LoginCard({ onSuccess, onSwitchToSignup }: Props) {
       localStorage.setItem("is_logged_in", "true");
       onSuccess();
     } catch (e: any) {
-      setErr(e.message || "Login failed");
+      setErr(e.message);
     } finally {
       setLoading(false);
     }

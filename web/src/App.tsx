@@ -61,7 +61,6 @@ export default function App() {
       {mode === "home" && (
         <Home
           onLogout={() => {
-            localStorage.removeItem("is_logged_in");
             goto("login");
           }}
         />
